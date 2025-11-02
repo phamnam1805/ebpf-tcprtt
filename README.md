@@ -72,6 +72,14 @@ sudo ./ebpf-tcprtt \
 	-ms
 ```
 
+```bash
+sudo ./ebpf-tcprtt \
+	-laddr-hist \
+    -saddr 192.168.1.1 \
+	-dport 443 \
+    -ms 
+```
+
 Flags supported by `cmd/main.go`:
 - `-laddr-hist` : group histogram by local IPv4 address (boolean)
 - `-raddr-hist` : group histogram by remote IPv4 address (boolean)
@@ -123,13 +131,12 @@ Fields meaning:
 
 1. Parse CLI flags and convert dotted IPv4 strings to uint32 network-order values.
 2. Set rodata variables in the loaded eBPF object (so the BPF program knows filter settings).
-3. Attach the eBPF fentry and start a goroutine that periodically (1s) iterates the `hists` map and prints the contents.
+3. Attach the eBPF fentry and start a goroutine that periodically (10s) iterates the `hists` map and prints the contents.
 4. On shutdown, detach and close BPF objects cleanly.
 
 ## Troubleshooting
 
 - "Failed to load BPF object": run with root or ensure CAP_BPF, and ensure clang/llvm are installed.
-- "No output": generate TCP traffic (curl), or loosen filters; ensure the binary is running as root and BTF is present at `/sys/kernel/btf/vmlinux`.
 - Map layout mismatch: If you change `struct hist` in `bpf/tcprtt.h`, regenerate bindings and user-space decoding logic.
 
 ## Use Cases
